@@ -10,7 +10,6 @@ import (
 
 	"github.com/TuSKan/astrogo/angle"
 	"github.com/TuSKan/astrogo/coord"
-	eph "github.com/TuSKan/astrogo/ephemeris"
 	"github.com/TuSKan/astrogo/internal/parallel"
 	"github.com/TuSKan/astrogo/vector"
 
@@ -338,7 +337,7 @@ func getMoonGeocentricVec(t time.Time) (vector.Vec3, error) {
 
 	moonSepCache.mu.Unlock()
 
-	moon := NewMoon(eph.Default())
+	moon := NewMoon(defaultProvider())
 
 	vec, err := moon.GeocentricVec(t)
 	if err != nil {

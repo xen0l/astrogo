@@ -153,7 +153,7 @@ func (c Sun) Check(_ Observable, t time.Time, site *Site) (Result, error) {
 // CheckCtx evaluates Sun altitude using a pre-built coord.Context.
 // The obj parameter is ignored — the Sun position is always computed internally.
 func (c Sun) CheckCtx(obj Observable, t time.Time, _ *Site, ctx *coord.Context) (Result, error) {
-	sun := NewSun(eph.Default())
+	sun := NewSun(defaultProvider())
 
 	// If we are checking the Sun itself against a Sun constraint, don't penalize.
 	if p, ok := obj.(*Planet); ok && p.IsSun() {
@@ -206,7 +206,7 @@ func (c MoonSep) CheckCtx(obj Observable, _ time.Time, _ *Site, ctx *coord.Conte
 		return Result{}, fmt.Errorf("constraint: moon separation position: %w", err)
 	}
 
-	moonPos, err := topocentricPosition(NewMoon(eph.Default()), ctx.Time(), ctx)
+	moonPos, err := topocentricPosition(NewMoon(defaultProvider()), ctx.Time(), ctx)
 	if err != nil {
 		return Result{}, fmt.Errorf("constraint: moon separation: %w", err)
 	}
@@ -243,10 +243,10 @@ type MoonIllum struct {
 	// constraint passes.
 	Threshold float64
 	// Provider supplies the Moon's position/phase geometry. A nil
-	// Provider defaults to eph.Default(), matching this package's
-	// established nil-provider convention (see plan.NewPlanet and
-	// friends) — MoonSep's own hardcoded eph.Default() predates that
-	// convention and is not what this mirrors.
+	// Provider defaults to this package's shared eph.Default() provider,
+	// matching its established nil-provider convention (see
+	// plan.NewPlanet and friends) — MoonSep's own hardcoded default
+	// predates that convention and is not what this mirrors.
 	Provider eph.Provider
 }
 
@@ -264,7 +264,7 @@ func (c MoonIllum) CheckCtx(obj Observable, _ time.Time, _ *Site, ctx *coord.Con
 
 	prov := c.Provider
 	if prov == nil {
-		prov = eph.Default()
+		prov = defaultProvider()
 	}
 
 	frac, _, err := MoonIllumination(ctx.Time(), prov)
